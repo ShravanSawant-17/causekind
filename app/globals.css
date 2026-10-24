@@ -59,3 +59,14 @@ textarea::placeholder {
   color: #b0a398;
   opacity: 1;
 }
+
+/* Hide floating Next.js development indicator badge */
+[data-nextjs-dev-tools-button],
+[data-nextjs-toast],
+nextjs-portal,
+#nextjs-dev-tools {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}

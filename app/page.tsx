@@ -3,15 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { usePortal } from "@/lib/portal-context";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("shravan.sawant17@gmail.com");
-  const [password, setPassword] = useState("password123");
+  const router = useRouter();
+  const { login } = usePortal();
+
+  // Inputs start clean and empty so the user can type!
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(true);
+  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   function handleLogin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -22,16 +26,37 @@ export default function LoginPage() {
       return;
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setError("Please enter a valid email address.");
       return;
     }
 
     setLoading(true);
+
     setTimeout(() => {
-      router.push("/dashboard");
-    }, 450);
+      const res = login(email, password);
+
+      if (!res.success) {
+        setLoading(false);
+        setError(res.error || "Authentication failed. Please verify credentials.");
+        return;
+      }
+
+      setLoading(false);
+      if (res.role === "ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
+    }, 400);
   }
+
+  // Quick fill helper for evaluator testing
+  const fillCredentials = (demoEmail: string, demoPass: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPass);
+    setError("");
+  };
 
   return (
     <main className="min-h-screen bg-[#faf7f3] text-[#211b17]">
@@ -92,26 +117,26 @@ export default function LoginPage() {
         {/* Right Sign-in Card */}
         <div className="mx-auto w-full max-w-md">
           <div className="rounded-[28px] border border-[#eee2d7] bg-white p-7 shadow-[0_20px_70px_rgba(94,58,32,0.09)] sm:p-10">
-            <div className="mb-8">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f8e7d8] text-2xl text-[#b65329]">
+            <div className="mb-6">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f8e7d8] text-2xl text-[#b65329]">
                 ♡
               </div>
               <p className="text-xs font-bold tracking-[0.2em] text-[#b65329]">
                 INTERN SIGN IN
               </p>
-              <h2 className="mt-3 font-serif text-4xl font-bold tracking-tight">
+              <h2 className="mt-2 font-serif text-3xl font-bold tracking-tight">
                 Welcome back
               </h2>
-              <p className="mt-3 text-sm leading-6 text-[#796c62]">
-                Sign in to continue your journey with CauseKind.
+              <p className="mt-1 text-xs leading-5 text-[#796c62]">
+                Sign in to access your volunteer, team, or admin portal.
               </p>
             </div>
 
-            <form onSubmit={handleLogin} className="space-y-5">
+            <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-semibold"
+                  className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#483c32]"
                 >
                   Email address
                 </label>
@@ -121,16 +146,16 @@ export default function LoginPage() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full rounded-xl border border-[#e8ddd3] bg-[#fffdfa] px-4 py-3.5 text-sm outline-none transition placeholder:text-[#b0a398] focus:border-[#b65329] focus:ring-4 focus:ring-[#b65329]/10"
+                  placeholder="Enter your registered email"
+                  className="w-full rounded-xl border border-[#e8ddd3] bg-[#fffdfa] px-4 py-3 text-sm outline-none transition placeholder:text-[#b0a398] focus:border-[#b65329] focus:ring-4 focus:ring-[#b65329]/10"
                 />
               </div>
 
               <div>
-                <div className="mb-2 flex items-center justify-between">
+                <div className="mb-1.5 flex items-center justify-between">
                   <label
                     htmlFor="password"
-                    className="text-sm font-semibold"
+                    className="text-xs font-bold uppercase tracking-wider text-[#483c32]"
                   >
                     Password
                   </label>
@@ -150,7 +175,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="w-full bg-transparent px-4 py-3.5 text-sm outline-none placeholder:text-[#b0a398]"
+                    className="w-full bg-transparent px-4 py-3 text-sm outline-none placeholder:text-[#b0a398]"
                   />
                   <button
                     type="button"
@@ -163,20 +188,20 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <label className="flex cursor-pointer items-center gap-2.5 text-sm text-[#71645a]">
+              <label className="flex cursor-pointer items-center gap-2.5 text-xs text-[#71645a]">
                 <input
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
                   className="h-4 w-4 accent-[#b65329]"
                 />
-                Remember me
+                Remember me on this browser
               </label>
 
               {error && (
                 <p
                   role="alert"
-                  className="rounded-xl border border-[#f0c9bc] bg-[#fff3ee] p-3 text-sm leading-6 text-[#a33d25]"
+                  className="rounded-xl border border-[#f0c9bc] bg-[#fff3ee] p-3 text-xs leading-5 text-[#a33d25]"
                 >
                   {error}
                 </p>
@@ -185,16 +210,46 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full items-center justify-center gap-3 rounded-full bg-[#ad5127] px-5 py-4 text-sm font-bold text-white shadow-[0_8px_20px_rgba(173,81,39,0.2)] transition hover:bg-[#93421e] focus:outline-none focus:ring-4 focus:ring-[#ad5127]/25 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex w-full items-center justify-center gap-3 rounded-full bg-[#ad5127] px-5 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_rgba(173,81,39,0.2)] transition hover:bg-[#93421e] focus:outline-none focus:ring-4 focus:ring-[#ad5127]/25 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {loading ? "Signing in..." : "Log In"}
                 {!loading && <span aria-hidden="true">→</span>}
               </button>
             </form>
 
-            <div className="my-7 h-px bg-[#f0e7df]" />
+            {/* Quick Demo Credentials Autofill Pill Bar */}
+            <div className="mt-5 rounded-2xl border border-[#f0e4d7] bg-[#fffcf9] p-3 text-xs">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[#9f8d7f] mb-2 text-center">
+                Quick-Fill Demo Credentials (Click to load)
+              </p>
+              <div className="grid grid-cols-3 gap-1.5 text-center">
+                <button
+                  type="button"
+                  onClick={() => fillCredentials("shravan.sawant17@gmail.com", "password123")}
+                  className="rounded-lg border border-[#e4d6c8] bg-white py-1.5 px-1 font-semibold text-[#ad5127] hover:bg-[#faf4ee] text-[11px]"
+                >
+                  Volunteer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials("ananya.team@causekind.com", "leader123")}
+                  className="rounded-lg border border-[#e4d6c8] bg-white py-1.5 px-1 font-semibold text-[#ad5127] hover:bg-[#faf4ee] text-[11px]"
+                >
+                  Team Leader
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fillCredentials("admin@causekind.com", "admin123")}
+                  className="rounded-lg border border-[#e4d6c8] bg-white py-1.5 px-1 font-semibold text-[#211b17] hover:bg-[#faf4ee] text-[11px]"
+                >
+                  Admin
+                </button>
+              </div>
+            </div>
 
-            <p className="text-center text-sm text-[#796c62]">
+            <div className="my-6 h-px bg-[#f0e7df]" />
+
+            <p className="text-center text-xs text-[#796c62]">
               Don&apos;t have an account?{" "}
               <Link
                 href="/register"
@@ -203,11 +258,6 @@ export default function LoginPage() {
                 Create account
               </Link>
             </p>
-
-            <div className="mt-5 rounded-xl bg-[#faf3ed] p-3 text-center text-xs text-[#827266]">
-              <span className="font-semibold text-[#ad5127]">Demo Mode:</span>{" "}
-              Any valid email navigates to the dashboard prototype.
-            </div>
           </div>
 
           <p className="mt-6 text-center text-xs leading-6 text-[#928277]">

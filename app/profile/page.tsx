@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { PortalLayout } from "@/components/portal/PortalLayout";
 import { usePortal } from "@/lib/portal-context";
 
 export default function ProfilePage() {
-  const { profile, updateProfile, profileCompletion, completedTasks, totalTasks } =
+  const { currentUser, profile, updateProfile, profileCompletion, completedTasks, totalTasks } =
     usePortal();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -15,13 +16,38 @@ export default function ProfilePage() {
     phone: profile.phone,
     institution: profile.institution,
     course: profile.course,
+    department: profile.department || "",
     year: profile.year,
+    graduationYear: profile.graduationYear || "",
+    studentId: profile.studentId || "",
     location: profile.location,
     bio: profile.bio,
     skills: profile.skills.join(", "),
     interests: profile.interests.join(", "),
+    availability: profile.availability || "",
   });
   const [formError, setFormError] = useState("");
+
+  const startEditing = () => {
+    setFormData({
+      name: profile.name,
+      email: profile.email,
+      phone: profile.phone,
+      institution: profile.institution,
+      course: profile.course,
+      department: profile.department || "",
+      year: profile.year,
+      graduationYear: profile.graduationYear || "",
+      studentId: profile.studentId || "",
+      location: profile.location,
+      bio: profile.bio,
+      skills: profile.skills.join(", "),
+      interests: profile.interests.join(", "),
+      availability: profile.availability || "",
+    });
+    setFormError("");
+    setIsEditing(true);
+  };
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -65,11 +91,15 @@ export default function ProfilePage() {
       phone: formData.phone.trim(),
       institution: formData.institution.trim(),
       course: formData.course.trim(),
+      department: formData.department.trim(),
       year: formData.year.trim(),
+      graduationYear: formData.graduationYear.trim(),
+      studentId: formData.studentId.trim(),
       location: formData.location.trim(),
       bio: formData.bio.trim(),
       skills: parsedSkills,
       interests: parsedInterests,
+      availability: formData.availability.trim(),
     });
 
     setIsEditing(false);
@@ -82,11 +112,15 @@ export default function ProfilePage() {
       phone: profile.phone,
       institution: profile.institution,
       course: profile.course,
+      department: profile.department || "",
       year: profile.year,
+      graduationYear: profile.graduationYear || "",
+      studentId: profile.studentId || "",
       location: profile.location,
       bio: profile.bio,
       skills: profile.skills.join(", "),
       interests: profile.interests.join(", "),
+      availability: profile.availability || "",
     });
     setFormError("");
     setIsEditing(false);
@@ -101,17 +135,23 @@ export default function ProfilePage() {
             Intern Profile
           </span>
           <h1 className="mt-1 font-serif text-3xl font-bold tracking-tight text-[#211b17]">
-            Personal Details & Credentials
+            Personal Details & Academic Credentials
           </h1>
           <p className="mt-1 text-sm text-[#796c62]">
-            Keep your academic and contact details updated for certificate issuance.
+            All information saved during registration is displayed here and attached to your verified record.
           </p>
         </div>
 
-        <div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/verification"
+            className="rounded-full border border-[#ad5127] bg-[#fffaf5] px-4 py-2 text-xs font-bold text-[#ad5127] hover:bg-[#faf0e8] transition"
+          >
+            Manage Verification Documents →
+          </Link>
           {!isEditing ? (
             <button
-              onClick={() => setIsEditing(true)}
+              onClick={startEditing}
               className="inline-flex items-center gap-2 rounded-full bg-[#ad5127] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#93421e]"
             >
               <span>✏️</span> Edit Profile
@@ -131,8 +171,16 @@ export default function ProfilePage() {
         {/* Left Column: Avatar & Summary Card */}
         <div className="space-y-6">
           <div className="rounded-2xl border border-[#eee2d7] bg-white p-6 text-center shadow-sm">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-[#ad5127] font-serif text-3xl font-bold text-white shadow-md">
-              {profile.initials}
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl bg-[#ad5127] font-serif text-3xl font-bold text-white shadow-md overflow-hidden">
+              {profile.avatarUrl ? (
+                <img
+                  src={profile.avatarUrl}
+                  alt={profile.name}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                profile.initials
+              )}
             </div>
 
             <h2 className="mt-4 font-serif text-xl font-bold text-[#211b17]">
@@ -140,6 +188,22 @@ export default function ProfilePage() {
             </h2>
             <p className="text-xs font-semibold text-[#ad5127]">{profile.role}</p>
             <p className="mt-1 text-xs text-[#796c62]">{profile.institution}</p>
+
+            {/* Verification Status Badge */}
+            <div className="mt-3">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
+                  currentUser?.verificationStatus === "VERIFIED"
+                    ? "bg-[#f8e7d8] text-[#ad5127]"
+                    : "bg-[#fff2e6] text-[#d97736]"
+                }`}
+              >
+                <span>{currentUser?.verificationStatus === "VERIFIED" ? "✓" : "⏳"}</span>
+                {currentUser?.verificationStatus === "VERIFIED"
+                  ? "Verified Intern"
+                  : "Verification Pending"}
+              </span>
+            </div>
 
             {/* Profile Completion Indicator */}
             <div className="mt-6 rounded-xl border border-[#eee3d7] bg-[#fffaf5] p-4 text-left">
@@ -154,7 +218,7 @@ export default function ProfilePage() {
                 />
               </div>
               <p className="mt-2 text-[11px] leading-4 text-[#89796d]">
-                A 100% completed profile ensures your official certificate of completion matches your university record.
+                Completed details ensure your official Certificate of Completion accurately references your university credentials.
               </p>
             </div>
 
@@ -181,9 +245,9 @@ export default function ProfilePage() {
 
           {/* Privacy Note */}
           <div className="rounded-2xl border border-[#ede3d8] bg-[#fffcf9] p-5 text-xs leading-relaxed text-[#796c62]">
-            <p className="font-bold text-[#211b17]">🔒 Privacy & Data Policy</p>
+            <p className="font-bold text-[#211b17]">🔒 Privacy & Data Protection</p>
             <p className="mt-1">
-              CauseKind never shares intern academic scores or contact numbers with third parties. This profile is maintained locally for this demo session.
+              CauseKind strictly respects student data privacy. Your contact details and student ID are stored securely and never published publicly.
             </p>
           </div>
         </div>
@@ -203,12 +267,12 @@ export default function ProfilePage() {
 
               <div className="border-t border-[#f0e7df] pt-6">
                 <h3 className="font-serif text-lg font-bold text-[#211b17] mb-4">
-                  Academic & Contact Information
+                  Academic & Institutional Credentials
                 </h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="rounded-xl bg-[#faf7f3] p-4">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b7a6d]">
-                      Full Name
+                      Full Legal Name
                     </span>
                     <p className="mt-1 text-sm font-semibold text-[#211b17]">
                       {profile.name}
@@ -217,7 +281,7 @@ export default function ProfilePage() {
 
                   <div className="rounded-xl bg-[#faf7f3] p-4">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b7a6d]">
-                      Email Address
+                      Registered Email
                     </span>
                     <p className="mt-1 text-sm font-semibold text-[#211b17]">
                       {profile.email}
@@ -244,7 +308,25 @@ export default function ProfilePage() {
 
                   <div className="rounded-xl bg-[#faf7f3] p-4">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b7a6d]">
-                      Contact Phone
+                      Department / Branch
+                    </span>
+                    <p className="mt-1 text-sm font-semibold text-[#211b17]">
+                      {profile.department || "General"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-[#faf7f3] p-4">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b7a6d]">
+                      Student ID / Roll No.
+                    </span>
+                    <p className="mt-1 text-sm font-semibold text-[#211b17]">
+                      {profile.studentId || "Not specified"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl bg-[#faf7f3] p-4">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b7a6d]">
+                      Contact Mobile
                     </span>
                     <p className="mt-1 text-sm font-semibold text-[#211b17]">
                       {profile.phone}
@@ -253,7 +335,7 @@ export default function ProfilePage() {
 
                   <div className="rounded-xl bg-[#faf7f3] p-4">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-[#8b7a6d]">
-                      Location / Region
+                      Volunteering City / Area
                     </span>
                     <p className="mt-1 text-sm font-semibold text-[#211b17]">
                       {profile.location}
@@ -279,10 +361,10 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              {/* Interests */}
+              {/* Causes & Interests */}
               <div className="border-t border-[#f0e7df] pt-6">
                 <h3 className="font-serif text-lg font-bold text-[#211b17] mb-3">
-                  Social Impact Interests
+                  Social Impact Causes
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {profile.interests.map((interest, idx) => (
@@ -316,7 +398,7 @@ export default function ProfilePage() {
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
@@ -329,7 +411,7 @@ export default function ProfilePage() {
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
@@ -342,7 +424,7 @@ export default function ProfilePage() {
                     name="institution"
                     value={formData.institution}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
@@ -355,7 +437,20 @@ export default function ProfilePage() {
                     name="course"
                     value={formData.course}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#483c32] mb-1">
+                    Department / Branch
+                  </label>
+                  <input
+                    type="text"
+                    name="department"
+                    value={formData.department}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
@@ -368,7 +463,7 @@ export default function ProfilePage() {
                     name="year"
                     value={formData.year}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
@@ -381,11 +476,11 @@ export default function ProfilePage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
-                <div className="sm:col-span-2">
+                <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-[#483c32] mb-1">
                     Location / City
                   </label>
@@ -394,21 +489,21 @@ export default function ProfilePage() {
                     name="location"
                     value={formData.location}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
               </div>
 
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#483c32] mb-1">
-                  Short Biography / Motivation
+                  Biography / Motivation
                 </label>
                 <textarea
                   rows={3}
                   name="bio"
                   value={formData.bio}
                   onChange={handleInputChange}
-                  className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] p-3 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                  className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] p-3 text-xs outline-none focus:border-[#ad5127]"
                 />
               </div>
 
@@ -422,20 +517,20 @@ export default function ProfilePage() {
                     name="skills"
                     value={formData.skills}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-wider text-[#483c32] mb-1">
-                    Interests (comma separated)
+                    Interests & Causes (comma separated)
                   </label>
                   <input
                     type="text"
                     name="interests"
                     value={formData.interests}
                     onChange={handleInputChange}
-                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127] focus:ring-4 focus:ring-[#ad5127]/10"
+                    className="w-full rounded-xl border border-[#e4d8cc] bg-[#fffdfa] px-3.5 py-2.5 text-xs outline-none focus:border-[#ad5127]"
                   />
                 </div>
               </div>
@@ -456,7 +551,7 @@ export default function ProfilePage() {
                 </button>
                 <button
                   type="submit"
-                  className="rounded-full bg-[#ad5127] px-6 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-[#93421e]"
+                  className="rounded-full bg-[#ad5127] px-6 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#93421e]"
                 >
                   Save Profile Changes →
                 </button>

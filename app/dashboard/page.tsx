@@ -10,7 +10,9 @@ import { usePortal } from "@/lib/portal-context";
 
 export default function DashboardPage() {
   const {
+    currentUser,
     profile,
+    myTeam,
     tasks,
     totalTasks,
     completedTasks,
@@ -30,17 +32,28 @@ export default function DashboardPage() {
   // Recent tasks (top 5)
   const recentTasks = tasks.slice(0, 5);
 
+  const isVerified = currentUser?.verificationStatus === "VERIFIED";
+
   return (
     <PortalLayout>
       {/* Top Welcome Header */}
       <div className="flex flex-col justify-between gap-4 border-b border-[#eee5dc] pb-6 sm:flex-row sm:items-center">
         <div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <span className="rounded-full bg-[#f8e7d8] px-3 py-1 text-xs font-bold tracking-widest text-[#ad5127]">
               COHORT FALL 2026
             </span>
             <span className="text-xs font-semibold text-[#8b796d]">
               ID: {profile.id}
+            </span>
+            <span
+              className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                isVerified
+                  ? "bg-[#eaf5ea] text-[#1b6e22]"
+                  : "bg-[#fff2e6] text-[#d97736]"
+              }`}
+            >
+              {isVerified ? "✓ Verified" : "⏳ Pending Verification"}
             </span>
           </div>
           <h1 className="mt-2 font-serif text-3xl font-bold tracking-tight text-[#211b17] sm:text-4xl">
@@ -48,6 +61,7 @@ export default function DashboardPage() {
           </h1>
           <p className="mt-1 text-sm text-[#796c62]">
             {profile.role} • {profile.institution}
+            {myTeam ? ` • Team: ${myTeam.name}` : ""}
           </p>
         </div>
 
@@ -70,7 +84,27 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Metric Stat Cards (Calculated directly from context) */}
+      {/* Verification Action Banner if Pending */}
+      {!isVerified && (
+        <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-[#f4cfbf] bg-[#fff8f5] p-4 text-xs text-[#8e3914]">
+          <div>
+            <p className="font-bold">
+              Action Required: Submit Your College Identity Verification
+            </p>
+            <p className="mt-0.5 text-[#a64e29]">
+              To receive your verified certificate and lead field outreach groups, upload your college ID card.
+            </p>
+          </div>
+          <Link
+            href="/verification"
+            className="shrink-0 rounded-full bg-[#ad5127] px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-[#93421e] text-center"
+          >
+            Upload Document →
+          </Link>
+        </div>
+      )}
+
+      {/* Metric Stat Cards */}
       <section className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Assigned"
@@ -130,7 +164,7 @@ export default function DashboardPage() {
                 Recent Tasks & Activities
               </h2>
               <p className="mt-0.5 text-xs text-[#796c62]">
-                Your recent assignments and progress
+                Your assignments and submission status
               </p>
             </div>
             <Link
@@ -174,7 +208,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Right Column: Progress Card */}
+        {/* Right Column: Progress Card & Quick Actions */}
         <div className="space-y-6">
           <ProgressCard
             completed={completedTasks}
@@ -185,7 +219,7 @@ export default function DashboardPage() {
             notStarted={notStartedTasks}
           />
 
-          {/* Quick Action Buttons */}
+          {/* Quick Action Shortcuts */}
           <div className="rounded-2xl border border-[#eee2d7] bg-[#fffdfa] p-5">
             <h3 className="font-serif text-base font-bold text-[#211b17]">
               Quick Shortcuts
@@ -201,19 +235,19 @@ export default function DashboardPage() {
                 href="/calendar"
                 className="flex items-center gap-2 rounded-xl bg-white p-3 border border-[#ede3d8] text-xs font-bold text-[#211b17] hover:border-[#ad5127] hover:text-[#ad5127] transition"
               >
-                <span>📅</span> View Calendar
+                <span>📅</span> Calendar
               </Link>
               <Link
-                href="/onboarding"
+                href="/verification"
                 className="flex items-center gap-2 rounded-xl bg-white p-3 border border-[#ede3d8] text-xs font-bold text-[#211b17] hover:border-[#ad5127] hover:text-[#ad5127] transition"
               >
-                <span>📖</span> Safety Kit
+                <span>📑</span> Documents
               </Link>
               <Link
-                href="/achievements"
+                href="/team"
                 className="flex items-center gap-2 rounded-xl bg-white p-3 border border-[#ede3d8] text-xs font-bold text-[#211b17] hover:border-[#ad5127] hover:text-[#ad5127] transition"
               >
-                <span>🏅</span> Badges
+                <span>👥</span> My Team
               </Link>
             </div>
           </div>
