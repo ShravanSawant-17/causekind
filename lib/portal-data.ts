@@ -9,6 +9,9 @@ import {
   Campaign,
   AuditEvent,
   NotificationItem,
+  OutreachRegistration,
+  EvaluationScore,
+  CertificateRequest,
 } from "./types";
 
 export const initialInternProfile: InternProfile = {
@@ -399,6 +402,7 @@ export const initialTasks: TaskItem[] = [
     priority: "High",
     status: "Completed",
     estimatedHours: 2,
+    trackLabel: "Track A",
     guidelines: [
       "Ensure official college email or roll number is accurate",
       "Upload identity confirmation document",
@@ -423,6 +427,7 @@ export const initialTasks: TaskItem[] = [
     priority: "Medium",
     status: "Completed",
     estimatedHours: 4,
+    trackLabel: "Track A",
     guidelines: [
       "Read all modules in the Onboarding Kit tab",
       "Familiarise yourself with field conduct and consent policies",
@@ -447,6 +452,7 @@ export const initialTasks: TaskItem[] = [
     priority: "High",
     status: "Completed",
     estimatedHours: 8,
+    trackLabel: "Track B",
     guidelines: [
       "Obtain verbal and signed consent prior to surveys",
       "Document key needs regarding study materials and clean water access",
@@ -471,6 +477,7 @@ export const initialTasks: TaskItem[] = [
     priority: "High",
     status: "In Progress",
     estimatedHours: 6,
+    trackLabel: "Track B",
     guidelines: [
       "Detail attendance, beneficiary distribution count, and volunteers present",
       "Highlight at least 3 actionable recommendations for the next cycle",
@@ -488,6 +495,7 @@ export const initialTasks: TaskItem[] = [
     priority: "Medium",
     status: "In Progress",
     estimatedHours: 5,
+    trackLabel: "Track A",
     guidelines: [
       "Incorporate official CauseKind typography and color scheme",
       "Include authentic quotes from local mentors",
@@ -505,6 +513,7 @@ export const initialTasks: TaskItem[] = [
     priority: "Medium",
     status: "Not Started",
     estimatedHours: 4,
+    trackLabel: "Track A",
     guidelines: [
       "Sort items into primary, middle, and high school buckets",
       "Flag any damaged or incomplete bundles",
@@ -522,6 +531,7 @@ export const initialTasks: TaskItem[] = [
     priority: "Low",
     status: "Not Started",
     estimatedHours: 3,
+    trackLabel: "Both",
     guidelines: [
       "Prepare presentation deck following CauseKind template",
       "Record attendance and answer attendee questions",
@@ -539,6 +549,7 @@ export const initialTasks: TaskItem[] = [
     priority: "Low",
     status: "Not Started",
     estimatedHours: 3,
+    trackLabel: "Both",
     guidelines: [
       "Reflect on technical and leadership skills practiced",
       "Quantify hours dedicated and direct beneficiaries reached",
@@ -758,3 +769,109 @@ export const onboardingSections: OnboardingSection[] = [
     ],
   },
 ];
+
+// ============================================================
+// SEED DATA — OUTREACH REGISTRATIONS
+// ============================================================
+export const initialOutreachRegistrations: OutreachRegistration[] = [
+  {
+    id: "OR-001",
+    registeredByUserId: "USER-001",
+    registeredByName: "Shravan S Sawant",
+    type: "Donor",
+    fullName: "Rajesh Kumar",
+    age: 42,
+    city: "Bandra West, Mumbai",
+    causeArea: "Education",
+    description: "Local shop owner willing to donate stationery supplies for 50 children annually.",
+    consentStatus: "Given",
+    consentDate: "2026-10-12",
+    stage: "Verified",
+    stageHistory: [
+      { id: "SH-001", toStage: "Contacted", changedByUserId: "USER-001", changedByName: "Shravan S Sawant", timestamp: "2026-10-11 10:00" },
+      { id: "SH-002", fromStage: "Contacted", toStage: "Verified", changedByUserId: "USER-003", changedByName: "CauseKind Admin", timestamp: "2026-10-13 14:30", notes: "Documents checked. Verified donor." },
+    ],
+    evidenceFiles: [
+      { id: "EV-001", fileName: "donor_consent_rajesh.pdf", fileSize: "320 KB", uploadedAt: "2026-10-12 11:00", description: "Signed consent form" },
+    ],
+    createdAt: "2026-10-11T10:00:00Z",
+    verifiedByUserId: "USER-003",
+    verifiedByName: "CauseKind Admin",
+    reviewerFeedback: "Verified. Donor confirmed willing to donate stationery.",
+  },
+  {
+    id: "OR-002",
+    registeredByUserId: "USER-001",
+    registeredByName: "Shravan S Sawant",
+    type: "Donee",
+    fullName: "Meena Patil",
+    age: 16,
+    guardianName: "Suresh Patil",
+    city: "Dharavi, Mumbai",
+    causeArea: "Education",
+    description: "Class 10 student needing textbooks and exam preparation support.",
+    consentStatus: "Given",
+    consentDate: "2026-10-14",
+    stage: "Matched",
+    stageHistory: [
+      { id: "SH-003", toStage: "Contacted", changedByUserId: "USER-001", changedByName: "Shravan S Sawant", timestamp: "2026-10-13 09:00" },
+      { id: "SH-004", fromStage: "Contacted", toStage: "Verified", changedByUserId: "USER-003", changedByName: "CauseKind Admin", timestamp: "2026-10-15 11:00" },
+      { id: "SH-005", fromStage: "Verified", toStage: "Matched", changedByUserId: "USER-003", changedByName: "CauseKind Admin", timestamp: "2026-10-17 13:30", notes: "Matched with donor OR-001." },
+    ],
+    evidenceFiles: [
+      { id: "EV-002", fileName: "donee_consent_meena.pdf", fileSize: "290 KB", uploadedAt: "2026-10-14 10:00", description: "Guardian consent (minor)" },
+    ],
+    createdAt: "2026-10-13T09:00:00Z",
+    verifiedByUserId: "USER-003",
+    verifiedByName: "CauseKind Admin",
+  },
+  {
+    id: "OR-003",
+    registeredByUserId: "USER-002",
+    registeredByName: "Ananya Rao",
+    type: "Donor",
+    fullName: "Priya Nair",
+    age: 35,
+    city: "Santacruz, Mumbai",
+    causeArea: "Food Security",
+    description: "Corporate employee organising monthly meal kit donation with office colleagues.",
+    consentStatus: "Given",
+    consentDate: "2026-10-18",
+    stage: "Contacted",
+    stageHistory: [
+      { id: "SH-006", toStage: "Contacted", changedByUserId: "USER-002", changedByName: "Ananya Rao", timestamp: "2026-10-18 15:00" },
+    ],
+    evidenceFiles: [],
+    createdAt: "2026-10-18T15:00:00Z",
+  },
+];
+
+// ============================================================
+// SEED DATA — EVALUATIONS
+// ============================================================
+export const initialEvaluations: EvaluationScore[] = [
+  {
+    id: "EVAL-001",
+    internUserId: "USER-001",
+    evaluatedByUserId: "USER-003",
+    evaluatedByName: "CauseKind Admin",
+    period: "Week 1–2",
+    scores: {
+      portalDeliverablesQuality: 85,
+      verifiedFieldRegistrations: 70,
+      fieldStageProgression: 75,
+      timelinessAndInitiative: 90,
+      documentationAndReporting: 80,
+      collaborationAndCommunication: 88,
+    },
+    overallScore: 80.6,
+    feedback: "Strong start. Documentation and timeliness are excellent. Field registrations are growing well.",
+    status: "Official",
+    createdAt: "2026-10-18T10:00:00Z",
+  },
+];
+
+// ============================================================
+// SEED DATA — CERTIFICATE REQUESTS
+// ============================================================
+export const initialCertificateRequests: CertificateRequest[] = [];

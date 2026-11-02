@@ -39,9 +39,7 @@ export interface TaskItem {
   status: TaskStatus;
   estimatedHours: number;
   guidelines: string[];
-  assignedTo?: string; // userId or teamId
-  submission?: TaskSubmission;
-}
+  assignedTo?: string; // userId or teamId\r\n  trackLabel?: TrackLabel;\r\n  submission?: TaskSubmission;\r\n}
 
 export interface InternProfile {
   id: string;
@@ -202,4 +200,139 @@ export interface NotificationItem {
   read: boolean;
   createdAt: string;
   link?: string;
+}
+
+// ============================================================
+// TRACK LABELS
+// ============================================================
+export type TrackLabel = "Track A" | "Track B" | "Both";
+
+// Extended TaskStatus matching spec
+export type ExtendedTaskStatus = "Draft" | "Submitted" | "Under Review" | "Revision Required" | "Approved" | "Rejected" | "In Progress" | "Not Started" | "Completed";
+
+// ============================================================
+// FIELD OUTREACH
+// ============================================================
+export type OutreachStage = "Contacted" | "Verified" | "Matched" | "Donation Completed";
+export type OutreachType = "Donor" | "Donee";
+export type ConsentStatus = "Given" | "Pending" | "Withdrawn";
+
+export interface OutreachRegistration {
+  id: string;
+  registeredByUserId: string;
+  registeredByName: string;
+  type: OutreachType;
+  // Personal info — only shown to authorized parties
+  fullName: string;
+  age?: number;
+  guardianName?: string; // required if under 18
+  city: string;
+  causeArea: string; // e.g. "Education", "Health", "Food Security"
+  description: string;
+  consentStatus: ConsentStatus;
+  consentDate?: string;
+  stage: OutreachStage;
+  stageHistory: OutreachStageEvent[];
+  evidenceFiles: OutreachEvidence[];
+  createdAt: string;
+  verifiedByUserId?: string;
+  verifiedByName?: string;
+  reviewerFeedback?: string;
+}
+
+export interface OutreachStageEvent {
+  id: string;
+  fromStage?: OutreachStage;
+  toStage: OutreachStage;
+  changedByUserId: string;
+  changedByName: string;
+  timestamp: string;
+  notes?: string;
+}
+
+export interface OutreachEvidence {
+  id: string;
+  fileName: string;
+  fileSize: string;
+  uploadedAt: string;
+  description?: string;
+}
+
+// ============================================================
+// CONTRIBUTIONS / EVALUATIONS
+// ============================================================
+export interface ContributionWeights {
+  portalDeliverablesQuality: number;   // 30%
+  verifiedFieldRegistrations: number;  // 25%
+  fieldStageProgression: number;       // 15%
+  timelinessAndInitiative: number;     // 15%
+  documentationAndReporting: number;   // 10%
+  collaborationAndCommunication: number; // 5%
+}
+
+export interface EvaluationScore {
+  id: string;
+  internUserId: string;
+  evaluatedByUserId: string;
+  evaluatedByName: string;
+  period: string; // e.g. "Week 3", "Midterm", "Final"
+  scores: {
+    portalDeliverablesQuality: number;   // 0-100
+    verifiedFieldRegistrations: number;  // 0-100
+    fieldStageProgression: number;       // 0-100
+    timelinessAndInitiative: number;     // 0-100
+    documentationAndReporting: number;   // 0-100
+    collaborationAndCommunication: number; // 0-100
+  };
+  overallScore: number; // weighted calculation
+  feedback: string;
+  status: "Draft" | "Official";
+  createdAt: string;
+}
+
+// ============================================================
+// CERTIFICATES
+// ============================================================
+export type CertificateStatus = "Ineligible" | "Eligible" | "Requested" | "Under Review" | "Approved" | "Issued" | "Rejected" | "Revoked";
+
+export interface CertificateEligibility {
+  hasApprovedTrackADeliverable: boolean;
+  hasMinFiveVerifiedOutreachStage2Plus: boolean;
+  bothTracksCompleted: boolean;
+  complianceClearance: boolean;
+  requiredWorkRecorded: boolean;
+  overallEligible: boolean;
+}
+
+export interface CertificateRequest {
+  id: string;
+  internUserId: string;
+  internName: string;
+  requestedAt: string;
+  status: CertificateStatus;
+  eligibilitySnapshot: CertificateEligibility;
+  adminNotes?: string;
+  reviewedByUserId?: string;
+  reviewedAt?: string;
+  certificateId?: string; // unique cert ID once issued
+  issuedAt?: string;
+  pdfUrl?: string;
+}
+
+// ============================================================
+// REPORT / BATCH STATS
+// ============================================================
+export interface BatchReport {
+  batchId: string;
+  batchName: string;
+  totalInterns: number;
+  verifiedInterns: number;
+  trackACompleted: number;
+  trackBCompleted: number;
+  totalTasksAssigned: number;
+  totalTasksCompleted: number;
+  totalOutreachRegistrations: number;
+  totalVerifiedRegistrations: number;
+  certificatesIssued: number;
+  averageContributionScore: number;
 }
