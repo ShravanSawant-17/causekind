@@ -112,7 +112,7 @@ npm run lint
 
 ---
 
-## 🔌 Java Spring Boot API Integration Contract
+## 🔌 Java Spring Boot API Integration Contract ...
 
 When connecting to the Java Spring Boot backend, set `NEXT_PUBLIC_API_URL=http://localhost:8080/api`:
 
